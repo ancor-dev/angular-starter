@@ -31,7 +31,7 @@ module.exports = function (options) {
      * Do not change, leave as is or it wont work.
      * See: https://github.com/webpack/karma-webpack#source-maps
      */
-    devtool: 'inline-source-map',
+    devtool: false,
 
     /**
      * Options affecting the resolving of modules.
@@ -45,12 +45,12 @@ module.exports = function (options) {
        *
        * See: http://webpack.github.io/docs/configuration.html#resolve-extensions
        */
-      extensions: ['.ts', '.js'],
+      extensions: ['.js'],
 
       /**
        * Make sure root is src
        */
-      modules: [helpers.root('src'), 'node_modules']
+      modules: [helpers.root('src'), helpers.root('node_modules')],
 
     },
 
@@ -65,56 +65,17 @@ module.exports = function (options) {
     module: {
 
       rules: [
-
         /**
-         * Source map loader support for *.js files
-         * Extracts SourceMaps for source files that as added as sourceMappingURL comment.
+         * Loader for webpack that inlines all html and style's in angular components.
          *
-         * See: https://github.com/webpack/source-map-loader
+         * See: https://github.com/TheLarkInn/angular2-template-loader#angular2-template-loader
          */
         {
-          enforce: 'pre',
-          test: /\.js$/,
-          loader: 'source-map-loader',
-          exclude: [
-            /**
-             * These packages have problems with their sourcemaps
-             */
-            helpers.root('node_modules/rxjs'),
-            helpers.root('node_modules/@angular')
-          ]
-        },
-
-        /**
-         * Typescript loader support for .ts and Angular 2 async routes via .async.ts
-         *
-         * See: https://github.com/s-panferov/awesome-typescript-loader
-         */
-        {
-          test: /\.ts$/,
+          test: /\.js/,
           use: [
-            {
-              loader: 'awesome-typescript-loader',
-              query: {
-                /**
-                 * Use inline sourcemaps for "karma-remap-coverage" reporter
-                 */
-                sourceMap: false,
-                inlineSourceMap: true,
-                compilerOptions: {
-
-                  /**
-                   * Remove TypeScript helpers to be injected
-                   * below by DefinePlugin
-                   */
-                  removeComments: true
-
-                }
-              },
-            },
-            'angular2-template-loader'
+            'angular2-template-loader',
           ],
-          exclude: [/\.e2e\.ts$/]
+          exclude: [/\.e2e\.js/, /node_modules/]
         },
 
         /**
@@ -162,25 +123,7 @@ module.exports = function (options) {
           loader: 'raw-loader',
           exclude: [helpers.root('src/index.html')]
         },
-
-        /**
-         * Instruments JS files with Istanbul for subsequent code coverage reporting.
-         * Instrument only testing sources.
-         *
-         * See: https://github.com/deepsweet/istanbul-instrumenter-loader
-         */
-        {
-          enforce: 'post',
-          test: /\.(js|ts)$/,
-          loader: 'istanbul-instrumenter-loader',
-          include: helpers.root('src'),
-          exclude: [
-            /\.(e2e|spec)\.ts$/,
-            /node_modules/
-          ]
-        }
-
-      ]
+      ],
     },
 
     /**
